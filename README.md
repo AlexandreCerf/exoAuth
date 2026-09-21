@@ -20,13 +20,13 @@ cp .env.example .env
 
 Puis remplir le fichier `.env` :
 
-| Variable        | Description                                             | Exemple                                  |
-| --------------- | ------------------------------------------------------- | ---------------------------------------- |
-| `PORT`          | Port du serveur                                         | `3000`                                   |
-| `ISSUER`        | URL du realm Keycloak                                   | `http://localhost:8080/realms/myrealm`   |
-| `CLIENT_ID`     | Identifiant du client Keycloak                          | `mon-client`                             |
-| `CLIENT_SECRET` | Secret du client (onglet *Credentials* dans Keycloak)   | `xxxxxxxx`                               |
-| `REDIRECT_URI`  | URL de callback, identique à celle configurée dans Keycloak | `http://localhost:3000/callback`     |
+```env
+PORT=3000
+ISSUER=http://localhost:8080/realms/myrealm
+CLIENT_ID=your-client-id
+CLIENT_SECRET=your-client-secret
+REDIRECT_URI=http://localhost:3000/callback
+```
 
 ## Lancement
 
