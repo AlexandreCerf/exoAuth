@@ -1,5 +1,7 @@
 # Exo OIDC — Authorization Code Flow
 
+**Auteurs :** Alexandre CERF, Baptiste COLLINOT, Romain GILOT
+
 Petit serveur Express qui implémente le flow OpenID Connect « Authorization Code » avec Keycloak, puis affiche le contenu de l'ID Token, de l'Access Token et du endpoint UserInfo.
 
 ## Prérequis
