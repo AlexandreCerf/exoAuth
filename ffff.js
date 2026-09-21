@@ -18,6 +18,12 @@ app.use(session({
 
 let oidcConfig = null
 
+function decodeJwt(token) {
+    const [headerB64, payloadB64] = token.split('.')
+    const decode = (b64) => JSON.parse(Buffer.from(b64, 'base64url').toString('utf8'))
+    return { header: decode(headerB64), payload: decode(payloadB64) }
+}
+
 async function getOidcConfig() {
     if (oidcConfig) return oidcConfig
     const res = await fetch(`${ISSUER}/.well-known/openid-configuration`)
@@ -42,7 +48,7 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/callback', async (req, res) => {
-    const { state, code } = req.query
+    const { state, code, session_state } = req.query
 
     if (!code || state !== req.session.state) {
         return res.status(400).send('Requête invalide (code ou state manquant/incorrect)')
@@ -58,6 +64,8 @@ app.get('/callback', async (req, res) => {
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             redirect_uri: REDIRECT_URI,
+            state,
+            session_state,
             code,
         }),
     })
@@ -67,12 +75,22 @@ app.get('/callback', async (req, res) => {
         return res.status(400).send(`Erreur lors de l'échange du code: ${JSON.stringify(tokens)}`)
     }
 
+    const decodedIdToken = decodeJwt(tokens.id_token)
+    const decodedAccessToken = decodeJwt(tokens.access_token)
+
     const userInfoResponse = await fetch(config.userinfo_endpoint, {
         headers: { Authorization: `Bearer ${tokens.access_token}` },
     })
     const userInfo = await userInfoResponse.json()
 
-    res.send(`<pre>${JSON.stringify(userInfo, null, 2)}</pre>`)
+    res.send(`
+        <h2>ID Token (décodé)</h2>
+        <pre>${JSON.stringify(decodedIdToken, null, 2)}</pre>
+        <h2>Access Token (décodé)</h2>
+        <pre>${JSON.stringify(decodedAccessToken, null, 2)}</pre>
+        <h2>UserInfo</h2>
+        <pre>${JSON.stringify(userInfo, null, 2)}</pre>
+    `)
 })
 
 app.listen(PORT, () => console.log(`Serveur démarré sur http://localhost:${PORT}`))
